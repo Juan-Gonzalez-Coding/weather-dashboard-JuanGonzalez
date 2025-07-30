@@ -3,10 +3,11 @@
 
 import tkinter as tk
 from tkinter import messagebox
+from core.weather_logic import custom_descriptions
 
 class AppWindow:
 
-     def __init__(self, fetch_weather_callback, compare_callback):
+     def __init__(self, extract_data_callback, compare_callback):
         self.root = tk.Tk()
         self.root.title("Weather App") #App window title
         self.root.geometry("1200x1000")
@@ -48,7 +49,7 @@ class AppWindow:
         self.city_input = tk.Entry(input_frame, width=40)
         self.city_input.grid(row=0, column=1, padx=5)
         
-        self.weather_button = tk.Button(self.root, font="AppleGothic", text="Get Weather",command=fetch_weather_callback)                         
+        self.weather_button = tk.Button(self.root, font="AppleGothic", text="Get Weather",command=extract_data_callback)                         
         self.weather_button.pack(pady=5)
 
         self.compare_button = tk.Button(self.root, font="AppleGothic", text="Compare a City", command=compare_callback)
@@ -108,7 +109,7 @@ class AppWindow:
          try: 
             compare_window = tk.Toplevel(self.root)
             compare_window.title("City Comparison")
-            compare_window.geometry("600x400")
+            compare_window.geometry("800x400")
 
             # Header
             header_label = tk.Label(compare_window, text="City Weather Comparison", font=("AppleGothic", 20, "bold"))
@@ -122,12 +123,19 @@ class AppWindow:
             city_one_frame = tk.Frame(frame)
             city_one_frame.grid(row=0, column=0, padx=20)
 
+            # Get custom descriptions
+            desc_one_api = city_one_data['weather'][0]['description']
+            desc_two_api = city_two_data['weather'][0]['description']
+
+            custom_description_one = custom_descriptions.get(desc_one_api,desc_one_api)
+            custom_description_two = custom_descriptions.get(desc_one_api,desc_one_api)
+
             tk.Label(city_one_frame, text=f"City: {city_one_data['name']}", font=("AppleGothic", 14)).pack()
             tk.Label(city_one_frame, text=f"Temp: {city_one_data['main']['temp']}°F").pack()
             tk.Label(city_one_frame, text=f"Max: {city_one_data['main']['temp_max']}°F").pack()
             tk.Label(city_one_frame, text=f"Min: {city_one_data['main']['temp_min']}°F").pack()
             tk.Label(city_one_frame, text=f"Weather: {city_one_data['weather'][0]['main']}").pack()
-            tk.Label(city_one_frame, text=f"Description: {city_one_data['weather'][0]['description']}").pack()
+            tk.Label(city_one_frame, text=f"Description: {custom_description_one}").pack()
 
 
             # City Two Info
@@ -139,7 +147,7 @@ class AppWindow:
             tk.Label(city_two_frame, text=f"Max: {city_two_data['main']['temp_max']}°F").pack()
             tk.Label(city_two_frame, text=f"Min: {city_two_data['main']['temp_min']}°F").pack()
             tk.Label(city_two_frame, text=f"Weather: {city_two_data['weather'][0]['main']}").pack()
-            tk.Label(city_two_frame, text=f"Description: {city_two_data['weather'][0]['description']}").pack()
+            tk.Label(city_two_frame, text=f"Description: {custom_description_two}").pack()
 
          except Exception as err:
             messagebox.showerror("Comparison Error", f"Could not open comparison window: {err}")
